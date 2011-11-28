@@ -1,0 +1,65 @@
+
+This is a subspace sparsenet that Jascha and I came up with but never
+published.
+
+It is a linear generative model with a prior on the coefficients that is
+"group sparse" (factorial over groups of coefficients). Inference in this
+type of model is commonly called "group LASSO".  Here, we are learning the
+basis, and so we use a slightly different prior than that which is typically
+used in group LASSO. 
+
+The "group LASSO" energy function is:
+
+E_1 = 0.5 * \sum_l | x_l - \sum_{ij} a_lij s_ij |^2 + ...
+      \lambda * \sum_i \sqrt{ \sum_j s_ij^2 }
+
+Our energy function is:
+
+E_2 = 0.5 * \sum_l | x_l - \sum_{ij} a_lij s_ij |^2 + ...
+      \lambda * \sum_i \sqrt{ \sum_l (\sum_j a_lij s_ij)^2 }
+
+Why change it? The reason is that if you use the original energy function and
+try doing MAP-EM learning with it, you'll find that the subspaces all collapse
+to a single vector. There is a pressure towards this solution as can be seen
+by noticing the following.. Say you solve
+
+\arg \min_{a_{ij}} E_1
+
+and the answer just happens to be:
+
+a_{ij} = 0 for all (i,j) != (1,1)
+a_{11} = 1 .
+
+That is, a single coefficient has value 1, and all the rest are 0.
+
+In this case, one basis element must look almost exactly like the data item.
+
+The value of E_1 can be reduced by replacing one of the other basis
+elements in the same group as the active basis element, with the
+vector that was activated. Now, the exact same reproduction of x can
+be achieved, but using two active elements of a. The prior term was
+
+sqrt(1^2 + 0 + ... + 0) = 1
+
+..but with two coefficients active at 1/2 it is
+
+sqrt(0.5^2 + 0.5^2 + 0 + ... + 0) = sqrt(0.5)
+
+Obviously, if you alternate between minimization of E w.r.t. a and phi, then
+it's not completely simple to understand how this solution will be achieved.
+(If you have a proof, by all means email it to me.) However, there is a
+pressure towards it.
+
+This code uses Mark Schmidt's minFunc to do optimization. Obviously, you can
+swap this out for any other optimization package. The reason I use it here is
+primarily because I found that only Mark's code was fast enough to enable me
+to try running this model on the tiny images database.
+
+A couple of different data sources are built in:
+
+- Bruno's IMAGES.mat (datasource='images')
+- Bruno's zebra movie (datasource='movies')
+- The tiny images database (datasource='tiny')
+
+If you put those in the right place, it is easy to run.
+

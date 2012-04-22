@@ -1,4 +1,3 @@
-
 This is a subspace sparsenet that Jascha and I came up with but never
 published.
 
@@ -18,10 +17,10 @@ Our energy function is:
 E_2 = 0.5 * \sum_l | x_l - \sum_{ij} a_lij s_ij |^2 + ...
       \lambda * \sum_i \sqrt{ \sum_l (\sum_j a_lij s_ij)^2 }
 
-Why change it? The reason is that if you use the original energy function and
-try doing MAP-EM learning with it, you'll find that the subspaces all collapse
-to a single vector. There is a pressure towards this solution as can be seen
-by noticing the following.. Say you solve
+Why change it? The reason is that if you use the original energy function to do
+MAP-EM learning, you'll find that the subspaces all collapse to a single vector.
+There is a pressure towards this solution as can be seen by noticing the following.
+Say you solve
 
 \arg \min_{a_{ij}} E_1
 
@@ -45,12 +44,12 @@ sqrt(1^2 + 0 + ... + 0) = 1
 
 sqrt(0.5^2 + 0.5^2 + 0 + ... + 0) = sqrt(0.5)
 
-Obviously, if you alternate between minimization of E w.r.t. a and phi, then
-it's not completely simple to understand how this solution will be achieved.
-(If you have a proof, by all means email it to me.) However, there is a
-pressure towards it.
+Since we alterate between minimization of E w.r.t. a and phi, and never
+minimize both simultaneously, it's not obvious that this trivial solution will
+always be produced. (If you have a proof, by all means email it to me.) However,
+there is a pressure towards it.
 
-This code uses Mark Schmidt's minFunc to do optimization. Obviously, you can
+This code uses Mark Schmidt's minFunc to do optimization. You can
 swap this out for any other optimization package. The reason I use it here is
 primarily because I found that only Mark's code was fast enough to enable me
 to try running this model on the tiny images database.
